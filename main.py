@@ -7,6 +7,8 @@ import time
 import board
 import touchio
 
+from collections import deque
+
 import usb_hid
 from adafruit_hid.keyboard import Keyboard
 from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS
@@ -25,8 +27,22 @@ time.sleep(1)  # Sleep for a bit to avoid a race condition on some systems
 keyboard = Keyboard(usb_hid.devices)
 keyboard_layout = KeyboardLayoutUS(keyboard)  # We're in the US :)
 
+keyStates = []
+for i in range(26):
+    keyStates.append(False)
+
+buttonStates = []
+
+for i in range(26):
+    buttonStates.append(deque())
+    for  j in range(3):
+        buttonStates[i].append(0)
+
 while True:
     for i in range(26):
         if touch_objs[i].value:
             print("key", i, "touched")
+
+        buttonStates[i].append(touch_objs[i].value)
+        buttonStates[i].popleft()
     time.sleep(0.05)
